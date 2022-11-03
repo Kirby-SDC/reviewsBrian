@@ -1,9 +1,17 @@
 const express = require('express');
+const connectionClient = require('./connect.js')
 const bodyParser = require('body-parser');
 const app = express();
 const port = 3000;
 
-const db = require('./review_queries');
+// const db = require('./queries')
+
+connectionClient.connect((err, client, release) => {
+  if (err) {
+    return console.error('Error acquiring client', err.stack)
+  }
+  console.log(`connected to database`)
+})
 
 app.use(bodyParser.json());
 app.use(
@@ -19,5 +27,5 @@ app.get('/', (request, response) => {
 //routes
 
 app.listen(port, () => {
-  console.log(`App running on port ${port}.`);
+  console.log(`App listening on port ${port}.`);
 });
