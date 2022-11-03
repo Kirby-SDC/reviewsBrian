@@ -81,10 +81,10 @@ ALTER TABLE IF EXISTS reviews
     OWNER to brianstern;
 
 
-COPY characteristic_reviews (id, characteristic_id, review_id, value) FROM '/Users/brianstern/Downloads/characteristic_reviews.csv' DELIMITER ',' CSV HEADER QUOTE '\"' ESCAPE '''';"";
+COPY characteristic_reviews (id, characteristic_id, review_id, value) FROM '/Users/brianstern/hackreactor/SDC/reviewsBrian/Back-End/data/characteristic_reviews.csv' DELIMITER ',' CSV HEADER QUOTE '\"' ESCAPE '''';"";
 
-copy public.photos (id, styleid, url, thumbnail_url) FROM '/Users/brianstern/Downloads/photos.csv' DELIMITER ',' CSV HEADER QUOTE '\"' ESCAPE '''';"";
+COPY photos (id, review_id, url, thumbnail_url) FROM '/Users/brianstern/hackreactor/SDC/reviewsBrian/Back-End/data/reviews_photos.csv' DELIMITER ',' CSV HEADER QUOTE '\"' ESCAPE '''';"";
 
-copy public.reviews (id, product_id, rating, date, summary, body, recommend, reported, reviewer_name, reviewer_email, response, helpfulness) FROM '/Users/brianstern/Downloads/reviews.csv' DELIMITER ',' CSV HEADER QUOTE '\"' ESCAPE '''';"";
+COPY reviews (id, product_id, rating, date, summary, body, recommend, reported, reviewer_name, reviewer_email, response, helpfulness) FROM '/Users/brianstern/hackreactor/SDC/reviewsBrian/Back-End/data/reviews.csv' DELIMITER ',' CSV HEADER QUOTE '\"' ESCAPE '''';"";
 
-public.characteristics (id, product_id, name) FROM '/Users/brianstern/hackreactor/SDC/reviewsBrian/Back-End/data/characteristics.csv' DELIMITER ',' CSV HEADER QUOTE '\"' ESCAPE '''';"";
+COPY characteristics (id, product_id, name) FROM '/Users/brianstern/hackreactor/SDC/reviewsBrian/Back-End/data/characteristics.csv' DELIMITER ',' CSV HEADER QUOTE '\"' ESCAPE '''';"";
