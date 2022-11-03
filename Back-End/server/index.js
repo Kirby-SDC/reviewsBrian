@@ -1,10 +1,9 @@
 const express = require('express');
-const connectionClient = require('./connect.js')
+const connectionClient = require('../connect.js');
+const {getReviews, getReviewsMeta, addReview, markReviewHelpful, reportReview} = require('../database/index.js');
 const bodyParser = require('body-parser');
 const app = express();
 const port = 3000;
-
-// const db = require('./queries')
 
 connectionClient.connect((err, client, release) => {
   if (err) {
@@ -13,18 +12,20 @@ connectionClient.connect((err, client, release) => {
   console.log(`connected to database`)
 })
 
-app.use(bodyParser.json());
+app.use(express.json());
 app.use(
   bodyParser.urlencoded({
-    extended: true,
+    extended: false,
   })
 );
 
-app.get('/', (request, response) => {
-  response.json({ info: 'Node.js, Express, and Postgres API' });
-});
-
 //routes
+
+app.get('/reviews/', getReviews);
+// app.get('/reviews/meta', getReviewsMeta);
+// app.post('/reviews', addReview);
+// app.put('/reviews', markReviewHelpful);
+// app.put('reviews/:review_id/report/', reportReview);
 
 app.listen(port, () => {
   console.log(`App listening on port ${port}.`);
