@@ -4,7 +4,7 @@
 
 CREATE TABLE IF NOT EXISTS reviews
 (
-    id integer NOT NULL,
+    review_id integer,
     product_id integer,
     rating integer,
     summary text COLLATE pg_catalog."default",
@@ -16,7 +16,7 @@ CREATE TABLE IF NOT EXISTS reviews
     response text COLLATE pg_catalog."default",
     helpfulness integer,
     date text COLLATE pg_catalog."default",
-    CONSTRAINT reviews_pkey PRIMARY KEY (id)
+    CONSTRAINT reviews_pkey PRIMARY KEY (review_id)
 );
 
 
@@ -81,10 +81,10 @@ COPY characteristic_reviews (id, characteristic_id, review_id, value) FROM '/Use
 
 COPY photos (id, review_id, url) FROM '/Users/brianstern/hackreactor/SDC/reviewsBrian/Back-End/data/reviews_photos.csv' DELIMITER ',' CSV HEADER;
 
-COPY reviews (id, product_id, rating, date, summary, body, recommend, reported, reviewer_name, reviewer_email, response, helpfulness) FROM '/Users/brianstern/hackreactor/SDC/reviewsBrian/Back-End/data/reviews.csv' DELIMITER ',' CSV HEADER;
+COPY reviews (review_id, product_id, rating, date, summary, body, recommend, reported, reviewer_name, reviewer_email, response, helpfulness) FROM '/Users/brianstern/hackreactor/SDC/reviewsBrian/Back-End/data/reviews.csv' DELIMITER ',' CSV HEADER;
 
 COPY characteristics (id, product_id, name) FROM '/Users/brianstern/hackreactor/SDC/reviewsBrian/Back-End/data/characteristics.csv' DELIMITER ',' CSV HEADER;
 
 ALTER TABLE characteristic_reviews ADD FOREIGN KEY (characteristic_id) REFERENCES characteristics (id);
-ALTER TABLE characteristic_reviews ADD FOREIGN KEY (review_id) REFERENCES reviews (id);
-ALTER TABLE photos ADD FOREIGN KEY (review_id) REFERENCES reviews (id);
+ALTER TABLE characteristic_reviews ADD FOREIGN KEY (review_id) REFERENCES reviews (review_id);
+ALTER TABLE photos ADD FOREIGN KEY (review_id) REFERENCES reviews (review_id);
