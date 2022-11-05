@@ -4,7 +4,7 @@
 
 CREATE TABLE IF NOT EXISTS reviews
 (
-    review_id integer,
+    review_id serial,
     product_id integer,
     rating integer,
     summary text COLLATE pg_catalog."default",
@@ -14,7 +14,7 @@ CREATE TABLE IF NOT EXISTS reviews
     reviewer_name text COLLATE pg_catalog."default",
     reviewer_email text COLLATE pg_catalog."default",
     response text COLLATE pg_catalog."default",
-    helpfulness integer,
+    helpfulness integer DEFAULT 0,
     date text COLLATE pg_catalog."default",
     CONSTRAINT reviews_pkey PRIMARY KEY (review_id)
 );
@@ -30,7 +30,7 @@ ALTER TABLE IF EXISTS reviews
 
 CREATE TABLE IF NOT EXISTS characteristics
 (
-    id integer NOT NULL,
+    id serial NOT NULL,
     product_id integer,
     name text COLLATE pg_catalog."default",
     CONSTRAINT characteristics_pkey PRIMARY KEY (id)
@@ -45,7 +45,7 @@ ALTER TABLE IF EXISTS characteristics
 
 CREATE TABLE IF NOT EXISTS characteristic_reviews
 (
-    id integer NOT NULL,
+    id serial NOT NULL,
     characteristic_id integer,
     review_id integer,
     value integer,
@@ -64,7 +64,7 @@ ALTER TABLE IF EXISTS characteristic_reviews
 
 CREATE TABLE IF NOT EXISTS photos
 (
-    id integer NOT NULL,
+    id serial,
     review_id integer,
     url text COLLATE pg_catalog."default",
     CONSTRAINT photos_pkey PRIMARY KEY (id)
@@ -88,3 +88,8 @@ COPY characteristics (id, product_id, name) FROM '/Users/brianstern/hackreactor/
 ALTER TABLE characteristic_reviews ADD FOREIGN KEY (characteristic_id) REFERENCES characteristics (id);
 ALTER TABLE characteristic_reviews ADD FOREIGN KEY (review_id) REFERENCES reviews (review_id);
 ALTER TABLE photos ADD FOREIGN KEY (review_id) REFERENCES reviews (review_id);
+
+SELECT setval('reviews_review_id_seq', COALESCE((SELECT MAX(review_id)+1 FROM reviews), 1), false);
+SELECT setval('characteristics_id_seq', COALESCE((SELECT MAX(id)+1 FROM characteristics), 1), false);
+SELECT setval('photos_id_seq', COALESCE((SELECT MAX(id)+1 FROM photos), 1), false);
+SELECT setval('characteristic_reviews_id_seq', COALESCE((SELECT MAX(id)+1 FROM characteristic_reviews), 1), false);

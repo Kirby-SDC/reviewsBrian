@@ -1,6 +1,6 @@
 const express = require('express');
 const connectionClient = require('../connect.js');
-const {getReviews, getPhotos, getMetaData, addReview, markReviewHelpful, reportReview} = require('../database/index.js');
+const {getReviews, getMetaData, addReview, updateHelpful, reportReview} = require('../database/index.js');
 const bodyParser = require('body-parser');
 const app = express();
 const port = 3000;
@@ -31,7 +31,7 @@ app.get('/reviews', (req, res) => {
   .catch((err) => {
     console.log(err)
   })
-})
+});
 
 // get meta data for a product id
 
@@ -43,16 +43,21 @@ app.get('/reviews/meta', (req, res) => {
   .catch((err) => {
     console.log(err)
   })
-})
+});
 
 // post review
 app.post('/reviews', (req, res) => {
   addReview(req.body)
   res.send()
-})
-// app.post('/reviews', addReview);
+});
 
-// app.put('/reviews', markReviewHelpful);
+//update helpfullness
+app.put('/reviews', (req, res) => {
+  updateHelpful(req.body.id)
+  res.send()
+});
+
+
 // app.put('reviews/:review_id/report/', reportReview);
 
 // json_agg, Json_build_object, coalesce, row_to_json
