@@ -1,6 +1,10 @@
     -- Table: reviews
 
 -- DROP TABLE IF EXISTS reviews;
+DROP TABLE IF EXISTS reviews CASCADE;
+DROP TABLE IF EXISTS characteristic_reviews CASCADE;
+DROP TABLE IF EXISTS characteristics CASCADE;
+DROP TABLE IF EXISTS photos CASCADE;
 
 CREATE TABLE IF NOT EXISTS reviews
 (
@@ -15,7 +19,7 @@ CREATE TABLE IF NOT EXISTS reviews
     reviewer_email text COLLATE pg_catalog."default",
     response text COLLATE pg_catalog."default",
     helpfulness integer DEFAULT 0,
-    date text COLLATE pg_catalog."default",
+    date bigserial,
     CONSTRAINT reviews_pkey PRIMARY KEY (review_id)
 );
 
@@ -88,6 +92,11 @@ COPY characteristics (id, product_id, name) FROM '/Users/brianstern/hackreactor/
 ALTER TABLE characteristic_reviews ADD FOREIGN KEY (characteristic_id) REFERENCES characteristics (id);
 ALTER TABLE characteristic_reviews ADD FOREIGN KEY (review_id) REFERENCES reviews (review_id);
 ALTER TABLE photos ADD FOREIGN KEY (review_id) REFERENCES reviews (review_id);
+
+CREATE INDEX idx_reviews_product_id ON reviews USING HASH (product_id);
+CREATE INDEX idx_photos_photos_id ON photos USING HASH (review_id);
+CREATE INDEX idx_characterstic_reviews_id ON characteristic_reviews USING HASH (characteristic_id);
+CREATE INDEX idx_characteristic_id ON characteristics USING HASH (id);
 
 SELECT setval('reviews_review_id_seq', COALESCE((SELECT MAX(review_id)+1 FROM reviews), 1), false);
 SELECT setval('characteristics_id_seq', COALESCE((SELECT MAX(id)+1 FROM characteristics), 1), false);

@@ -14,11 +14,33 @@ pool.connect();
 // get all reviews
 
 module.exports.getReviews = (req) => {
-  return pool.query(`select * from (
-    select a.review_id, a.rating, a.summary, a.recommend, a.response,
-      a.body, a.date, a.reviewer_name, a.helpfulness, (select json_agg(ph) from
-      (select url from photos where review_id = a.review_id )ph ) as photos
-    from reviews as a where product_id = ${req.query.product_id}) r;`);
+  return pool.query(`SELECT
+  a.review_id
+, a.rating
+, a.summary
+, a.recommend
+, a.response
+, a.body
+, a.date
+, a.reviewer_name
+, a.helpfulness
+, (
+    SELECT
+      json_agg(ph)
+    FROM
+      (
+        SELECT
+          url
+        FROM
+          photos
+        WHERE
+          review_id = a.review_id
+      ) ph
+  ) photos
+FROM
+  reviews a
+WHERE
+  product_id = ${req.query.product_id};`);
 }
 
 // add a review
@@ -31,53 +53,103 @@ module.exports.addReview = (req) => {
     for (characteristic in req.characteristics) {
       pool.query(`INSERT INTO characteristic_reviews (characteristic_id, review_id, value) VALUES(${characteristic}, ${data.rows[0].review_id}, ${req.characteristics[characteristic]})`)
     }
-
   })
+  .catch (err => {
+    console.log(err)
+  })
+  // .then (data => {
+  //   for (characteristic in req.characteristics) {
+  //     pool.query(`INSERT INTO characteristic_reviews (characteristic_id, review_id, value) VALUES(${characteristic}, ${data.rows[0].review_id}, ${req.characteristics[characteristic]})`)
+  //   }
+  // })
 }
 
 // increase helpfulness
 
 module.exports.updateHelpful = (req) => {
-  pool.query(`UPDATE reviews SET helpfulness = helpfulness + 1 WHERE review_id=${req}`)
+  pool.query(`UPDATE
+  reviews
+SET
+  helpfulness = helpfulness + 1
+WHERE
+  review_id = {req};`)
 }
 
 // get metadata
 
 module.exports.getMetaData = (req) => {
-  console.log('REVIEW ID')
-  return pool.query(`SELECT * FROM characteristics LIMIT 100 `);
+  return pool.query(`SELECT
+  json_build_object(
+    'product_id'
+  , ${req.query.product_id}
+  , 'ratings'
+  , (
+      SELECT
+        jsonb_object_agg(rating, count) details
+      FROM
+        (
+          SELECT
+            rating
+          , count(rating)
+          FROM
+            reviews
+          WHERE
+            product_id = ${req.query.product_id}
+          GROUP BY
+            rating
+        ) t
+    )
+  , 'recommended'
+  , (
+      SELECT
+        jsonb_object_agg(recommend, count) details
+      FROM
+        (
+          SELECT
+            recommend
+          , count(recommend) count
+          FROM
+            reviews
+          WHERE
+            product_id = ${req.query.product_id}
+          GROUP BY
+            recommend
+        ) t
+    )
+  , 'characteristics'
+  , (
+      SELECT
+        json_object_agg(
+          name
+        , jsonb_build_object(
+            'id'
+          , id
+          , 'value'
+          , avg
+          )
+        )
+      FROM
+        (
+          SELECT
+            c.name
+          , c.id
+          , avg(cr.value)
+          FROM
+            characteristics c
+          LEFT JOIN
+            characteristic_reviews cr
+              ON c.id = cr.characteristic_id
+          WHERE
+            c.product_id = ${req.query.product_id}
+          GROUP BY
+            c.id
+        ) t
+    )
+  ) t; `);
 }
 
-/*
-{
-  "product_id": "37314",
-  "ratings": {
-      "1": "16",
-      "2": "19",
-      "3": "58",
-      "4": "46",
-      "5": "58"
-  },
-  "recommended": {
-      "false": "60",
-      "true": "137"
-  },
-  "characteristics": {
-      "Fit": {
-          "id": 125040,
-          "value": "3.0185185185185185"
-      },
-      "Length": {
-          "id": 125041,
-          "value": "2.6190476190476190"
-      },
-      "Comfort": {
-          "id": 125042,
-          "value": "2.6410256410256410"
-      },
-      "Quality": {
-          "id": 125043,
-          "value": "2.7894736842105263"
-      }
-  }
-}*/
+// SELECT pr.*, c.sha AS merge_commit_sha
+// FROM pull_requests pr
+//   LEFT JOIN commits c ON     pr.merge_commit_id = c.id
+//                          AND pr.repository_id = c.repository_id
+// WHERE pr.repository_id IN (...)

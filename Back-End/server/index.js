@@ -38,7 +38,7 @@ app.get('/reviews', (req, res) => {
 app.get('/reviews/meta', (req, res) => {
   getMetaData(req)
   .then ((data) => {
-    res.json({results : data.rows})
+    res.json(data.rows[0].t)
   })
   .catch((err) => {
     console.log(err)
